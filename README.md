@@ -1,2 +1,2 @@
 # simpleIOTA
-A simple implementation of IOTA Tangle
+A simple implementation of IOTA Tangle.
