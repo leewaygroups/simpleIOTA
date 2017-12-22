@@ -1,15 +1,16 @@
 
 import json
 import hashlib, binascii
-from transaction import Transaction
+from lib.transaction import Transaction
 
 
 class Tangle(object):
-    def __init__(self, *args):
-        root_transaction = Transaction('0000', 'root', 25000000000)
-
+    def __init__(self, root, *args):
         self.DAG = {}
-        self.attach_transaction(root_transaction)
+        
+        if root:
+            root_transaction = Transaction('0000', 'root', 25000000000)        
+            self.attach_transaction(root_transaction, ['root'])
     
     def hash(transaction_string):
         return hashlib.sha256(transaction_string.encode()).hexdigest()
@@ -17,7 +18,7 @@ class Tangle(object):
     def str_join(self, *args):
         return ''.join(map(str, args))
 
-    def attach_transaction(self, transaction):
+    def attach_transaction(self, transaction, confirmed_transactions):
         if self.is_valid_transaction(transaction):
             transaction.key = hash(self.str_join([
                 transaction.time_stamp, 
@@ -26,6 +27,10 @@ class Tangle(object):
                 transaction.tnx['receiver'],
                 transaction.tnx['value'] 
             ]))
+            
+            for trans in confirmed_transactions:
+                transaction.pre_transactions.add(trans)
+
             self.DAG[transaction.key] = transaction
             return transaction
 

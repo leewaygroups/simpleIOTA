@@ -24,7 +24,7 @@ class Transaction():
             2. post_transactions" A ref collection of post transactions that confirmed this transaction              
         '''
         self.pre_transactions = set()
-        self.post_transactions = set()
+        # self.post_transactions = set()
 
         # switch transaction state to revealed after 50 secs.
         Timer(1, self.__reveal__, None)

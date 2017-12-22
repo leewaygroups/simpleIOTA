@@ -1,36 +1,40 @@
 
+import sys
+
 #import requests
 from uuid import uuid4
 from flask import Flask, jsonify, request
 
 # custom classes
-from node import Node
-from tangle import Tangle
+from lib.node import Node
+from lib.tangle import Tangle
+from lib.wallet import Wallet
+from lib.util import Util
 
 
 # Instantiate our Node
-app = Flask(__name__)
-
-''' 
-    1. Generate a globally unique identifier for this node 
-    2. Pass the identify to the node constructor to create a node instance
-'''
-node_key = str(uuid4()).replace('-', '')
-_node = Node(node_key)
-
 # Instantiate Tangle
-tangle = Tangle()
+app = Flask(__name__)
+utils = Util()
 
-@app.route('/node/register', methods=['POST'])
+node = Node(utils.unique_gen())
+
+@app.route('/node/register_neighbours', methods=['POST'])
 def register_new_node():
     values = request.get_json()
+    node.add_neighbours(values)
     return jsonify(values), 201
   
 @app.route('/transactions/new', methods=['POST'])
 def new_transaction():
     return "We'll add a new transaction"
 
-@app.route('/chain', methods=['GET'])
+@app.route('/wallet/balance', methods=['POST'])
+def wallet_balance():
+    return "wallets and balances of this node"
+    
+
+@app.route('/dag', methods=['GET'])
 def full_chain():
     response = { }
     return jsonify(response), 200

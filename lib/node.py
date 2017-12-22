@@ -1,16 +1,17 @@
 
-from util import Util     
-from wallet import Wallet
-from transaction import Transaction
+from lib.util import Util     
+from lib.wallet import Wallet
+from lib.transaction import Transaction
+from lib.tangle import Tangle
 
 utils = Util()
 
 class Node():
     def __init__(self, seed, *args):
         self.id = seed
-        self.public_id
         self.wallets = {}
-        self.tangle = self.sync_neighbour()
+        self.neighbours = set()
+        self.tangle = Tangle()
 
     def add_wallet(self):
         wallet_seed = utils.hash(str(self.seed)  + str(len(self.wallets)))
@@ -37,10 +38,13 @@ class Node():
                     receiver,
                     value
                 )
-                return self.tangle.attach_transaction(new_transaction)
+                return self.tangle.attach_transaction(new_transaction, confirmed_transactions)
 
         return None
              
+    def proof_of_work():
+        pass
+
     def confirm_transactions(self):
         '''
             Even when a node is not making any transactions, it must participate 
@@ -50,6 +54,12 @@ class Node():
     def sync_neighbour(self):
         #TODO: search for neighbour and return a Tangle
         pass
+
+    def add_neighbours(self, neighbours):
+        for ip in neighbours:
+            self.neighbours.add(neighbours[ip])
+        return None;
+        
 
 
         

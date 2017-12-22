@@ -1,5 +1,5 @@
 
-from util import Util
+from lib.util import Util
 
 utils = Util()
 
