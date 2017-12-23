@@ -8,8 +8,8 @@ class Transaction():
         # state 0: hidden, state 1: revealed
         self.state = 0
         self.weight = 1
-        self.pow = None
         self.key = None
+        self.pow = None
         self.time_stamp = time.time()
         self.tnx = {
             'sender': sender,

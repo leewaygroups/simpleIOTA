@@ -5,7 +5,7 @@ utils = Util()
 
 class Wallet():
     def __init__(self, seed):
-        self.id = seed
+        self.seed = seed
         self.addresses = {}
     
     def generate_address(self):

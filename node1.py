@@ -21,18 +21,17 @@ node = Node(utils.unique_gen())
 
 @app.route('/node/register_neighbours', methods=['POST'])
 def register_new_node():
-    values = request.get_json()
-    node.add_neighbours(values)
-    return jsonify(values), 201
-  
+    response = node.register_neighbours(request.get_json())
+    return jsonify(response), 201
+
 @app.route('/transactions/new', methods=['POST'])
-def new_transaction():
-    return "We'll add a new transaction"
+def make_transaction():
+    response = node.make_transaction(request.get_json())
+    return jsonify(response), 201
 
 @app.route('/wallet/balance', methods=['POST'])
 def wallet_balance():
     return "wallets and balances of this node"
-    
 
 @app.route('/dag', methods=['GET'])
 def full_chain():
