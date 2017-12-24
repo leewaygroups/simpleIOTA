@@ -7,10 +7,7 @@ from flask import Flask, jsonify, request
 
 # custom classes
 from lib.node import Node
-from lib.tangle import Tangle
-from lib.wallet import Wallet
 from lib.util import Util
-
 
 # Instantiate our Node
 # Instantiate Tangle
@@ -26,7 +23,8 @@ def register_new_node():
 
 @app.route('/transactions/new', methods=['POST'])
 def make_transaction():
-    response = node.make_transaction(request.get_json())
+    request_params = request.get_json()
+    response = node.make_transaction(request_params['receiving_addr'], request_params['value'])
     return jsonify(response), 201
 
 @app.route('/wallet/balance', methods=['POST'])
@@ -34,9 +32,8 @@ def wallet_balance():
     return "wallets and balances of this node"
 
 @app.route('/dag', methods=['GET'])
-def full_chain():
-    response = { }
-    return jsonify(response), 200
+def show_DAG():
+    return jsonify(node.DAG), 201
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=4001)

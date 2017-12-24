@@ -1,9 +1,9 @@
 
 from random import randint
+from threading import Timer
 from lib.util import Util     
 from lib.wallet import Wallet
 from lib.transaction import Transaction
-from lib.tangle import Tangle
 
 utils = Util()
 
@@ -12,7 +12,10 @@ class Node():
         self.seed = seed
         self.wallet = Wallet(utils.hash(str(self.seed)))
         self.neighbours = set()
-        self.tangle = Tangle()
+        self.DAG = {}
+
+        root_transaction = Transaction('0000', 'root', 25000000000)        
+        self.attach_transaction(root_transaction, ['root'])
 
     def proof_of_work(self, str_input):
         proof = 0
@@ -28,17 +31,18 @@ class Node():
         available_transactions = []
         selected_transactions = []
 
-        for key in self.tangle.DAG:
-            _transaction = self.tangle.DAG[key]
-            if _transaction.status == 1:
+        for key in self.DAG:
+            _transaction = self.DAG[key]
+            if _transaction.state == 1:
                 available_transactions.append(_transaction)
 
-        for i in range(2):
-            selected_transactions.append(available_transactions[randint(0, len(available_transactions)-1)]['key'])
+        if len(available_transactions) >= 1:
+            for i in range(2):
+                selected_transactions.append(available_transactions[randint(0, len(available_transactions)-1)].key)
 
         return selected_transactions
     
-    def make_transaction(self, receiver_addr, value):
+    def make_transaction(self, receiving_addr, value):
         '''
             1. Pick at least two transactions in Tangle to confirm
             2. Check picked transactions for conflict
@@ -46,19 +50,19 @@ class Node():
             4. Perform proof of work
             5. Send transaction to tangle 
         ''' 
-        confirmed_transactions = self.confirm_transactions()
-        proof_of_work = proof_of_work(''.join(confirmed_transactions))
+        confirmed_transactions = self.confirm_transactions()       
 
         if len(confirmed_transactions) >= 2:
+            proof_of_work = self.proof_of_work(''.join(confirmed_transactions))
             new_transaction  = Transaction(
                 self.wallet.generate_address(),
-                receiver_addr,
-                proof_of_work,                   
+                receiving_addr,                 
                 value
             )
-            return self.tangle.attach_transaction(new_transaction, confirmed_transactions)
+            new_transaction.pow =  proof_of_work
+            return self.attach_transaction(new_transaction, confirmed_transactions)
 
-        return None
+        return {'msg': 'transaction failed'}
 
     def confirm_transactions(self):
         '''
@@ -82,10 +86,6 @@ class Node():
         '''
 
         return self.select_tips()
-        
-
-
-
     
     def sync_neighbour(self):
         #TODO: search for neighbour and return a Tangle
@@ -94,7 +94,37 @@ class Node():
     def register_neighbours(self, neighbours):
         for ip in neighbours:
             self.neighbours.add(neighbours[ip])
-        return None;
+        return None
+
+    def attach_transaction(self, transaction, confirmed_transactions):
+        if self.is_valid_transaction(transaction):
+            transaction.key = utils.hash(utils.str_join([
+                transaction.time_stamp, 
+                transaction.pow, 
+                transaction.tnx['sending_addr'],
+                transaction.tnx['receiving_addr'],
+                transaction.tnx['value'] 
+            ]))
+            
+            for trans in confirmed_transactions:
+                transaction.pre_transactions.add(trans)
+
+            self.DAG[transaction.key] = transaction
+
+            # switch transaction state to revealed after 30 secs.
+            Timer(30, lambda: self.reveal(transaction), None).start()
+
+            return {'msg': 'ransaction successful'}
+
+        return {'msg': 'invalid transaction. Attachment failed'}
+
+    def is_valid_transaction(self, transaction):
+        # TODO: implement transaction validation logic
+        return True
+
+    def reveal(self, transaction):
+        transaction.state = 1
+        print("transaction revealed")
         
 
 

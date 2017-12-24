@@ -15,3 +15,6 @@ class Util():
     '''
     def unique_gen(self):
         return str(uuid4()).replace('-', '')
+
+    def str_join(self, *args):
+        return ''.join(map(str, args))

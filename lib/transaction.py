@@ -3,7 +3,7 @@ import time
 from threading import Timer
 
 class Transaction():
-    def __init__(self, sender, receiver, value, *args):
+    def __init__(self, sending_addr, receiving_addr, value, *args):
         
         # state 0: hidden, state 1: revealed
         self.state = 0
@@ -12,8 +12,8 @@ class Transaction():
         self.pow = None
         self.time_stamp = time.time()
         self.tnx = {
-            'sender': sender,
-            'receiver': receiver,
+            'sending_addr': sending_addr,
+            'receiving_addr': receiving_addr,
             'value': value 
         }
 
@@ -25,18 +25,11 @@ class Transaction():
         '''
         self.pre_transactions = set()
         # self.post_transactions = set()
-
-        # switch transaction state to revealed after 50 secs.
-        Timer(1, self.__reveal__, None)
     
     def height(self):
         pass
 
     def cummulative_weight(self):
         pass
-    
-    def __reveal__(self):
-        transaction.state = 1
-        print("Prince is here")
 
         
